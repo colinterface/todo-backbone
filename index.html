@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+<head>
+<link rel="stylesheet" type="text/css" href="styles.css">
+<script src="bower_components/jquery/jquery.min.js"></script>
+<script src="bower_components/underscore/underscore-min.js"></script>
+<script src="bower_components/backbone/backbone-min.js"></script>
+</head>
+
+<body>
+<form id="input" action="#">
+  <input id="text" type="text" placeholder="Do stuff...">
+  <input type="submit">
+</form>
+
+<ul id="todo-list">
+
+</ul>
+
+<script src="app.js"></script>
+<script type="text/javascript">
+  $(function() {
+    var list = new List();
+    var formView = new FormView({collection: list});
+    var listView = new ListView({collection: list});
+    // debugger;
+  });
+</script>
+</body>
+</html>
