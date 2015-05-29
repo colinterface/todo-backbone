@@ -21,7 +21,7 @@ var Todo = Backbone.Model.extend({
   },
 
   decreasePriority: function(){
-    this.set('priority', this.get('priority') - 1)
+    this.set('priority', this.get('priority') - 1);
     this.trigger('prioritySort', this);
   }
 
@@ -153,5 +153,3 @@ var FormView = Backbone.View.extend({
     $text.val('');
   }
 });
-
-
