@@ -1,7 +1,8 @@
 var Todo = Backbone.Model.extend({
   defaults: {
     text: '',
-    complete: false
+    complete: false,
+    priority: 0
   },
 
   toggleCheck: function() {
@@ -12,6 +13,16 @@ var Todo = Backbone.Model.extend({
   delete: function() {
     // debugger;
     this.trigger('delete', this);
+  },
+
+  increasePriority: function(){
+    this.set('priority', this.get('priority') + 1);
+    this.trigger('prioritySort', this);
+  },
+
+  decreasePriority: function(){
+    this.set('priority', this.get('priority') - 1)
+    this.trigger('prioritySort', this);
   }
 
 });
@@ -19,11 +30,31 @@ var Todo = Backbone.Model.extend({
 var List = Backbone.Collection.extend({
   model: Todo,
 
+  comparator: 'priority',
+
   initialize: function(){
+
     this.on('delete', function(todo) {
       this.remove(todo);
     }, this);
-  }
+
+    if (JSON.parse(localStorage.getItem('todoLocal'))) {
+      this.add(JSON.parse(localStorage.getItem('todoLocal')));
+    }
+
+    this.on('add remove prioritySort', function() {
+      this.sort();
+      localStorage.setItem('todoLocal', JSON.stringify(this));
+    });
+
+    // this.on('prioritySort', function(){
+    //   console.log('prioritySort!');
+
+    // });
+  },
+
+
+
 
 });
 
@@ -36,7 +67,13 @@ var TodoView = Backbone.View.extend({
 
   tagName: 'li',
 
-  template: _.template('<span class="todo"><input type="checkbox"><%- text %></span><button class"delete"></button>'),
+  template: _.template('<span class="todo"> \
+                          <input type="checkbox"><%- text %> \
+                        </span> \
+                        <span class="priority"><%- priority %></span> \
+                        <button class="plus">+</button> \
+                        <button class="minus">-</button> \
+                        <button class="delete">trashcan</button>'),
 
   render: function() {
     // var className = '';
@@ -53,8 +90,14 @@ var TodoView = Backbone.View.extend({
 
   events: {
     'change input': 'handleCheck',
-    'click button': function() {
+    'click .delete': function() {
       this.model.delete();
+    },
+    'click .plus': function(){
+      this.model.increasePriority();
+    },
+    'click .minus': function(){
+      this.model.decreasePriority();
     }
   },
 
@@ -70,7 +113,8 @@ var ListView = Backbone.View.extend({
   el: '#todo-list',
 
   initialize: function() {
-    this.collection.on('add remove', this.render, this);
+    this.render();
+    this.collection.on('add remove prioritySort', this.render, this);
     this.onscreenTodos = {};
   },
 
